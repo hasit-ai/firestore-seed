@@ -66,14 +66,18 @@ function uploadFile(bucket: Bucket, file: string, destination: string, force?: b
         // update "firebaseStorageDownloadTokens" metadata
         return new Promise((resolve, reject) => {
             var token: string;
-            if (metadata && metadata["firebaseStorageDownloadTokens"]) {
-                token = metadata["firebaseStorageDownloadTokens"];
+            if (metadata.metadata && metadata.metadata["firebaseStorageDownloadTokens"]) {
+                token = metadata.metadata["firebaseStorageDownloadTokens"];
                 resolve(token);
             } else {
                 token = uuid.v4();
                 metadata = metadata || {};
-                metadata["firebaseStorageDownloadTokens"] = token;
-                bucket.file(destination).setMetadata(metadata).then(() => {
+                metadata = {
+                    metadata: {
+                        firebaseStorageDownloadTokens: token,
+                    }
+                };
+                bucket.file(destination).setMetadata(metadata).then(function (snapshot) {
                     resolve(token);
                 }).catch(r => {
                     reject(r);
